@@ -1,17 +1,17 @@
-package com.altenburg.erp.controller;
+package com.example.demo;
 
-import com.altenburg.erp.entity.Product;
-import com.altenburg.erp.service.ProductService;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     private final ProductService service;
@@ -21,26 +21,50 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAll() {
-        return service.getAllProducts();
+    public ResponseEntity<List<Product>> getAll() {
+        return ResponseEntity.ok(service.getAllProducts());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getById(@PathVariable Long id) {
+        return service.getProductById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> search(@RequestParam String name) {
+        return ResponseEntity.ok(service.searchByName(name));
     }
 
     @PostMapping
-    public Product add(@RequestBody Product product) {
-        return service.saveProduct(product);
+    public ResponseEntity<Product> create(@Valid @RequestBody Product product) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.saveProduct(product));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> update(@PathVariable Long id, 
+                                         @Valid @RequestBody Product product) {
+        return service.updateProduct(id, product)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteProduct(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (service.deleteProduct(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/invoice")
-    public void downloadInvoice(HttpServletResponse response) throws IOException {
-        byte[] pdfBytes = service.generateInvoicePdf();
-        
-        response.setContentType(MediaType.APPLICATION_PDF_VALUE);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Lieferschein.pdf");
-        response.getOutputStream().write(pdfBytes);
+    public ResponseEntity<byte[]> downloadInvoice() {
+        byte[] pdf = service.generateInvoicePdf();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Lieferschein_Altenburg.pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
     }
 }

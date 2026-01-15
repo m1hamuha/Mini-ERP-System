@@ -1,14 +1,15 @@
-package com.altenburg.erp.service;
+package com.example.demo;
 
-import com.altenburg.erp.entity.Product;
-import com.altenburg.erp.repository.ProductRepository;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -23,12 +24,33 @@ public class ProductService {
         return repository.findAll();
     }
 
+    public Optional<Product> getProductById(Long id) {
+        return repository.findById(id);
+    }
+
+    public List<Product> searchByName(String name) {
+        return repository.findByNameContainingIgnoreCase(name);
+    }
+
     public Product saveProduct(Product product) {
         return repository.save(product);
     }
 
-    public void deleteProduct(Long id) {
-        repository.deleteById(id);
+    public Optional<Product> updateProduct(Long id, Product updatedProduct) {
+        return repository.findById(id).map(existing -> {
+            existing.setName(updatedProduct.getName());
+            existing.setQuantity(updatedProduct.getQuantity());
+            existing.setPrice(updatedProduct.getPrice());
+            return repository.save(existing);
+        });
+    }
+
+    public boolean deleteProduct(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     public byte[] generateInvoicePdf() {
@@ -37,36 +59,78 @@ public class ProductService {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // Заголовок
-            Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
-            Paragraph title = new Paragraph("Lieferschein / Warenbestand", fontTitle);
+            // Заголовок с датой и номером
+            Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20);
+            Paragraph title = new Paragraph("LIEFERSCHEIN", fontTitle);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
+            
+            Font fontSubtitle = FontFactory.getFont(FontFactory.HELVETICA, 12);
+            String invoiceNumber = "LS-" + System.currentTimeMillis();
+            String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+            
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph("Dokument Nr.: " + invoiceNumber, fontSubtitle));
+            document.add(new Paragraph("Datum: " + date, fontSubtitle));
+            document.add(new Paragraph("Standort: Altenburg, Thüringen", fontSubtitle));
             document.add(new Paragraph(" "));
 
-            // Таблица
-            PdfPTable table = new PdfPTable(3);
-            table.setWidthPercentage(100);
-            table.addCell("Produktname");
-            table.addCell("Menge (Stk.)");
-            table.addCell("Preis (€)");
+            // Разделительная линия
+            document.add(new Paragraph("_".repeat(80)));
+            document.add(new Paragraph(" "));
 
+            // Таблица товаров
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{1, 3, 2, 2});
+            
+            // Заголовки таблицы
+            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
+            addTableHeader(table, "Nr.", headerFont);
+            addTableHeader(table, "Produktname", headerFont);
+            addTableHeader(table, "Menge (Stk.)", headerFont);
+            addTableHeader(table, "Preis (€)", headerFont);
+
+            // Данные
             List<Product> products = repository.findAll();
+            int counter = 1;
+            double totalValue = 0;
+            
             for (Product p : products) {
+                table.addCell(String.valueOf(counter++));
                 table.addCell(p.getName());
                 table.addCell(String.valueOf(p.getQuantity()));
-                table.addCell(String.format("%.2f €", p.getPrice()));
+                table.addCell(String.format("%.2f", p.getPrice()));
+                totalValue += p.getPrice() * p.getQuantity();
             }
 
             document.add(table);
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("Vielen Dank für Ihre Arbeit. System generiert in Altenburg.", 
-                    FontFactory.getFont(FontFactory.HELVETICA, 10)));
+            document.add(new Paragraph(" "));
+            
+            // Общая стоимость
+            Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+            Paragraph total = new Paragraph(
+                String.format("GESAMTWERT: %.2f €", totalValue), boldFont);
+            total.setAlignment(Element.ALIGN_RIGHT);
+            document.add(total);
+            
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+            
+            // Подпись
+            Font footerFont = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.ITALIC);
+            document.add(new Paragraph("Mit freundlichen Grüßen", footerFont));
+            document.add(new Paragraph("Mini-ERP System | Altenburg", footerFont));
             
             document.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка генерации PDF", e);
+            throw new RuntimeException("Fehler bei der PDF-Generierung: " + e.getMessage(), e);
         }
     }
+
+    private void addTableHeader(PdfPTable table, String text, Font font) {
+        table.addCell(new Phrase(text, font));
+    }
 }
+
