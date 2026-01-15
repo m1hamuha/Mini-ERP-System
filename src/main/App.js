@@ -1,49 +1,76 @@
 import React, { useState, useEffect } from "react";
-import "./App.css"; // Добавь простую стилизацию сам
+import "./App.css";
+
+const API_URL = "http://localhost:8080/api/products";
 
 function App() {
+  const [user, setUser] = useState(null); // Состояние авторизации
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: "", quantity: 0, price: 0.0 });
-  
-  // Хардкод авторизации для демо (в реальном проекте используй форму логина)
-  const authHeader = "Basic " + btoa("admin:admin123"); 
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = () => {
-    fetch("http://localhost:8080/api/products", {
-      headers: { Authorization: authHeader },
-    })
-      .then((res) => res.json())
-      .then((data) => setProducts(data));
+  const getAuthHeader = () => {
+    return "Basic " + btoa(`${user.username}:${user.password}`);
   };
 
-  const handleAdd = () => {
-    fetch("http://localhost:8080/api/products", {
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // Простая проверка "на лету" (реальная проверка произойдет при первом fetch)
+    setUser({ username, password });
+  };
+
+  const fetchProducts = () => {
+    if (!user) return;
+    
+    fetch(API_URL, {
+      headers: { Authorization: getAuthHeader() },
+    })
+      .then((res) => {
+        if (res.status === 401) throw new Error("Неверный логин или пароль");
+        if (!res.ok) throw new Error("Ошибка сервера");
+        return res.json();
+      })
+      .then((data) => {
+        setProducts(data);
+        setError("");
+      })
+      .catch((err) => {
+        setError(err.message);
+        if(err.message === "Неверный логин или пароль") setUser(null);
+      });
+  };
+
+  useEffect(() => {
+    if (user) fetchProducts();
+  }, [user]);
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    fetch(API_URL, {
       method: "POST",
       headers: { 
-          "Content-Type": "application/json",
-          Authorization: authHeader 
+        "Content-Type": "application/json", 
+        Authorization: getAuthHeader() 
       },
       body: JSON.stringify(newProduct),
     }).then(() => {
-        fetchProducts();
-        setNewProduct({ name: "", quantity: 0, price: 0.0 });
+      fetchProducts();
+      setNewProduct({ name: "", quantity: 0, price: 0.0 });
     });
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:8080/api/products/${id}`, {
+    fetch(`${API_URL}/${id}`, {
       method: "DELETE",
-      headers: { Authorization: authHeader },
+      headers: { Authorization: getAuthHeader() },
     }).then(() => fetchProducts());
   };
 
   const downloadPdf = () => {
-    fetch("http://localhost:8080/api/products/invoice", {
-        headers: { Authorization: authHeader },
+    fetch(`${API_URL}/invoice`, {
+      headers: { Authorization: getAuthHeader() },
     })
       .then((res) => res.blob())
       .then((blob) => {
@@ -55,43 +82,69 @@ function App() {
       });
   };
 
+  // Если не авторизован - показываем форму входа
+  if (!user) {
+    return (
+      <div className="login-container" style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
+        <h2>System Login (Mini ERP)</h2>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <input 
+            type="text" 
+            placeholder="Username (admin)" 
+            value={username} 
+            onChange={e => setUsername(e.target.value)} 
+          />
+          <input 
+            type="password" 
+            placeholder="Password (admin123)" 
+            value={password} 
+            onChange={e => setPassword(e.target.value)} 
+          />
+          <button type="submit">Войти</button>
+        </form>
+      </div>
+    );
+  }
+
+  // Основной интерфейс
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>Lagerverwaltungssystem (WMS)</h1>
-      
-      {/* Форма добавления */}
-      <div style={{ marginBottom: "20px", border: "1px solid #ccc", padding: "10px" }}>
-        <h3>Neues Produkt hinzufügen</h3>
-        <input 
-            placeholder="Produktname" 
-            value={newProduct.name} 
-            onChange={e => setNewProduct({...newProduct, name: e.target.value})} 
+    <div className="App" style={{ padding: "20px" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1>Mini ERP: Warenbestand</h1>
+        <button onClick={() => setUser(null)} style={{ background: "#f44336" }}>Выйти</button>
+      </header>
+
+      <div className="controls" style={{ margin: "20px 0", padding: "15px", background: "#f5f5f5" }}>
+        <h3>Neues Produkt</h3>
+        <input
+          placeholder="Produktname"
+          value={newProduct.name}
+          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
         />
-        <input 
-            type="number" placeholder="Menge" 
-            value={newProduct.quantity} 
-            onChange={e => setNewProduct({...newProduct, quantity: parseInt(e.target.value)})} 
+        <input
+          type="number"
+          placeholder="Menge"
+          value={newProduct.quantity}
+          onChange={(e) => setNewProduct({ ...newProduct, quantity: parseInt(e.target.value) })}
         />
-        <input 
-            type="number" placeholder="Preis" 
-            value={newProduct.price} 
-            onChange={e => setNewProduct({...newProduct, price: parseFloat(e.target.value)})} 
+        <input
+          type="number"
+          placeholder="Preis"
+          value={newProduct.price}
+          onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
         />
-        <button onClick={handleAdd} style={{ marginLeft: "10px", backgroundColor: "#4CAF50", color: "white" }}>
-            Speichern
-        </button>
+        <button onClick={handleAdd}>Hinzufügen</button>
       </div>
 
-      {/* Кнопка отчета */}
-      <button onClick={downloadPdf} style={{ marginBottom: "20px", backgroundColor: "#008CBA", color: "white", padding: "10px" }}>
+      <button onClick={downloadPdf} style={{ marginBottom: "20px", background: "#4CAF50", color: "white" }}>
         📄 PDF Lieferschein herunterladen
       </button>
 
-      {/* Таблица */}
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table border="1" cellPadding="10" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ backgroundColor: "#f2f2f2", textAlign: "left" }}>
-            <th style={{ padding: "10px" }}>ID</th>
+          <tr>
+            <th>ID</th>
             <th>Produktname</th>
             <th>Menge (Stück)</th>
             <th>Preis (€)</th>
@@ -100,15 +153,13 @@ function App() {
         </thead>
         <tbody>
           {products.map((p) => (
-            <tr key={p.id} style={{ borderBottom: "1px solid #ddd" }}>
-              <td style={{ padding: "10px" }}>{p.id}</td>
+            <tr key={p.id}>
+              <td>{p.id}</td>
               <td>{p.name}</td>
               <td>{p.quantity}</td>
               <td>{p.price.toFixed(2)} €</td>
               <td>
-                <button onClick={() => handleDelete(p.id)} style={{ color: "red" }}>
-                    Löschen
-                </button>
+                <button onClick={() => handleDelete(p.id)} style={{ background: "#ff9800" }}>Löschen</button>
               </td>
             </tr>
           ))}
