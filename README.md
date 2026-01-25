@@ -1,4 +1,4 @@
-# Mini-ERP System für Altenburg
+# Mini-ERP System
 
 A comprehensive Mini-ERP (Enterprise Resource Planning) system designed for small businesses, with a focus on product management and German localization.
 
