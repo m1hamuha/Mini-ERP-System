@@ -11,31 +11,70 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service class for managing Product entities.
+ * Provides CRUD operations and business logic for products.
+ */
 @Service
 public class ProductService {
 
     private final ProductRepository repository;
 
+    /**
+     * Constructor for ProductService.
+     * 
+     * @param repository the ProductRepository to use for database operations
+     */
     public ProductService(ProductRepository repository) {
         this.repository = repository;
     }
 
+    /**
+     * Retrieves all products from the database.
+     * 
+     * @return List of all Product entities
+     */
     public List<Product> getAllProducts() {
         return repository.findAll();
     }
 
+    /**
+     * Retrieves a product by its ID.
+     * 
+     * @param id the ID of the product to retrieve
+     * @return Optional containing the Product if found, empty otherwise
+     */
     public Optional<Product> getProductById(Long id) {
         return repository.findById(id);
     }
 
+    /**
+     * Searches for products by name (case-insensitive, partial match).
+     * 
+     * @param name the name or partial name to search for
+     * @return List of matching Product entities
+     */
     public List<Product> searchByName(String name) {
         return repository.findByNameContainingIgnoreCase(name);
     }
 
+    /**
+     * Saves a new product to the database.
+     * 
+     * @param product the Product entity to save
+     * @return the saved Product entity with generated ID
+     */
     public Product saveProduct(Product product) {
         return repository.save(product);
     }
 
+    /**
+     * Updates an existing product.
+     * 
+     * @param id the ID of the product to update
+     * @param updatedProduct the Product entity with updated values
+     * @return Optional containing the updated Product if successful, empty if product not found
+     */
     public Optional<Product> updateProduct(Long id, Product updatedProduct) {
         return repository.findById(id).map(existing -> {
             existing.setName(updatedProduct.getName());
@@ -45,6 +84,12 @@ public class ProductService {
         });
     }
 
+    /**
+     * Deletes a product by its ID.
+     * 
+     * @param id the ID of the product to delete
+     * @return true if deletion was successful, false if product not found
+     */
     public boolean deleteProduct(Long id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -53,6 +98,13 @@ public class ProductService {
         return false;
     }
 
+    /**
+     * Generates a PDF invoice containing all products.
+     * The invoice includes product details, quantities, prices, and total value.
+     * 
+     * @return byte array containing the generated PDF document
+     * @throws RuntimeException if PDF generation fails
+     */
     public byte[] generateInvoicePdf() {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Document document = new Document();
