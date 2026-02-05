@@ -1,0 +1,25 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+*.iws
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application
+*.jar
+!gradle-wrapper.jar
+
+# Logs
+*.log
+
+# Application configs
+application-local.properties
+application-secrets.yml
+.env

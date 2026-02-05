@@ -1,0 +1,22 @@
+package com.example.demo;
+
+import com.example.demo.user.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+/**
+ * Boot-time data initializer to seed roles and an admin user.
+ */
+@Component
+@RequiredArgsConstructor
+public class DataInitializer implements CommandLineRunner {
+
+    private final UserService userService;
+
+    @Override
+    public void run(String... args) {
+        userService.initializeDefaultRoles();
+        userService.createInitialAdminUser();
+    }
+}
