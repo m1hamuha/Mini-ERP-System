@@ -1,11 +1,19 @@
-package com.example.demo;
+package com.example.demo.controller;
 
+import com.example.demo.Product;
+import com.example.demo.ProductService;
+import com.example.demo.controller.ProductController;
+import com.example.demo.dto.PagedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -14,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,14 +53,19 @@ class ProductControllerTest {
     }
 
     @Test
-    void getAll_shouldReturnAllProducts() {
-        when(service.getAllProducts()).thenReturn(Arrays.asList(testProduct1, testProduct2));
+    void getAllProducts_shouldReturnPagedResponse() {
+        List<Product> products = Arrays.asList(testProduct1, testProduct2);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(0, 20), 2);
+        when(service.getAllProducts(any(Pageable.class))).thenReturn(productPage);
 
-        ResponseEntity<List<Product>> response = controller.getAll();
+        ResponseEntity<PagedResponse<Product>> response = controller.getAllProducts(0, 20, "id", "asc");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
-        verify(service, times(1)).getAllProducts();
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().getContent().size());
+        assertEquals(0, response.getBody().getPage());
+        assertEquals(2, response.getBody().getTotalElements());
+        verify(service, times(1)).getAllProducts(any(Pageable.class));
     }
 
     @Test
@@ -76,14 +90,17 @@ class ProductControllerTest {
     }
 
     @Test
-    void search_shouldReturnMatchingProducts() {
-        when(service.searchByName("Test")).thenReturn(Arrays.asList(testProduct1, testProduct2));
+    void search_shouldReturnPagedMatchingProducts() {
+        List<Product> products = Arrays.asList(testProduct1, testProduct2);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(0, 20), 2);
+        when(service.searchByName(eq("Test"), any(Pageable.class))).thenReturn(productPage);
 
-        ResponseEntity<List<Product>> response = controller.search("Test");
+        ResponseEntity<PagedResponse<Product>> response = controller.search("Test", 0, 20);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
-        verify(service, times(1)).searchByName("Test");
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().getContent().size());
+        verify(service, times(1)).searchByName(eq("Test"), any(Pageable.class));
     }
 
     @Test
@@ -158,5 +175,17 @@ class ProductControllerTest {
         assertNotNull(response.getHeaders().getContentDisposition());
         assertArrayEquals(pdfContent, response.getBody());
         verify(service, times(1)).generateInvoicePdf();
+    }
+
+    @Test
+    void getAllProducts_withDescendingSort_shouldReturnSortedResults() {
+        List<Product> products = Arrays.asList(testProduct2, testProduct1);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(0, 20), 2);
+        when(service.getAllProducts(any(Pageable.class))).thenReturn(productPage);
+
+        ResponseEntity<PagedResponse<Product>> response = controller.getAllProducts(0, 20, "name", "desc");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(service, times(1)).getAllProducts(any(Pageable.class));
     }
 }

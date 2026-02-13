@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@PasswordMatch
 public class UpdatePasswordRequest {
 
     @NotBlank(message = "Current password is required")

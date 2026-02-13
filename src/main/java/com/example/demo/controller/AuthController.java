@@ -81,7 +81,38 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok().build();
+        log.info("Token refresh request");
+
+        String refreshToken = request.getRefreshToken();
+
+        // Extract username from refresh token
+        String username = jwtService.extractUsername(refreshToken);
+
+        // Load user details
+        User user = (User) userService.loadUserByUsername(username);
+
+        // Validate refresh token
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Generate new tokens
+        String newAccessToken = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        List<String> roles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        LoginResponse response = LoginResponse.builder()
+                .accessToken(newAccessToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtService.getExpiration() / 1000)
+                .username(user.getUsername())
+                .roles(roles)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")

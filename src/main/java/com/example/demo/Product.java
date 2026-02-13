@@ -14,14 +14,14 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank(message = "Название продукта обязательно")
-    @Size(min = 2, max = 100, message = "Название должно быть от 2 до 100 символов")
+    @NotBlank(message = "Product name is required")
+    @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters")
     private String name;
-    
-    @Min(value = 0, message = "Количество не может быть отрицательным")
+
+    @Min(value = 0, message = "Quantity cannot be negative")
     private int quantity;
-    
-    @DecimalMin(value = "0.01", message = "Цена должна быть больше 0")
+
+    @DecimalMin(value = "0.01", message = "Price must be greater than 0")
     private double price;
     
     @Column(name = "created_at")
