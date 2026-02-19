@@ -388,12 +388,6 @@ We welcome contributions from the community! Here are some ways you can help:
 - [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
 - [Mockito Tutorial](https://site.mockito.org/)
 - [OpenPDF Documentation](https://github.com/LibrePDF/OpenPDF)
-
-### For Users
-- [API Documentation](http://localhost:8080/swagger-ui.html) (when running)
-- [Postman Collection](docs/postman-collection.json) (coming soon)
-- [User Guide](docs/user-guide.md) (coming soon)
-
 ## 📋 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and version history.
@@ -405,9 +399,8 @@ Special thanks to our contributors and supporters who help make this project pos
 ## 📞 Contact
 
 For business inquiries, partnerships, or professional support:
-- **Email**: support@altenburg-erp.com
-- **Website**: https://altenburg-erp.com
-- **GitHub**: https://github.com/altenburg/mini-erp
+- **Email**: kostinmihail40@gmail.com
+- **GitHub**: https://github.com/m1hamuha/Mini-ERP-System
 
 ## 🎉 Getting Started
 
@@ -415,7 +408,7 @@ Ready to dive in? Here's how to get started quickly:
 
 ```bash
 # Clone the repository
-git clone https://github.com/altenburg/mini-erp.git
+git clone https://github.com/m1hamuha/Mini-ERP-System
 cd mini-erp
 
 # Build and run
