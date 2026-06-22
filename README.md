@@ -124,13 +124,13 @@ The application uses default configuration with H2 database for development. For
 
 | Method | Endpoint | Description | Authentication |
 |--------|----------|-------------|----------------|
-| GET | `/api/products` | Get all products | Required |
-| GET | `/api/products/{id}` | Get product by ID | Required |
-| GET | `/api/products/search?name={name}` | Search products by name | Required |
-| POST | `/api/products` | Create new product | Required |
-| PUT | `/api/products/{id}` | Update product | Required |
-| DELETE | `/api/products/{id}` | Delete product | Required |
-| GET | `/api/products/invoice` | Download PDF invoice | Required |
+| GET | `/api/v1/products` | Get all products | Required |
+| GET | `/api/v1/products/{id}` | Get product by ID | Required |
+| GET | `/api/v1/products/search?name={name}` | Search products by name | Required |
+| POST | `/api/v1/products` | Create new product | Required |
+| PUT | `/api/v1/products/{id}` | Update product | Required |
+| DELETE | `/api/v1/products/{id}` | Delete product | Required |
+| GET | `/api/v1/products/invoice` | Download PDF invoice | Required |
 
 ### Authentication
 
@@ -142,7 +142,7 @@ Default credentials:
 
 **Create Product:**
 ```bash
-curl -X POST http://localhost:8080/api/products \
+curl -X POST http://localhost:8080/api/v1/products \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic YWRtaW46YWRtaW4xMjM=" \
   -d '{"name": "Test Product", "quantity": 10, "price": 19.99}'
@@ -150,13 +150,13 @@ curl -X POST http://localhost:8080/api/products \
 
 **Get All Products:**
 ```bash
-curl -X GET http://localhost:8080/api/products \
+curl -X GET http://localhost:8080/api/v1/products \
   -H "Authorization: Basic YWRtaW46YWRtaW4xMjM="
 ```
 
 **Download Invoice:**
 ```bash
-curl -X GET http://localhost:8080/api/products/invoice \
+curl -X GET http://localhost:8080/api/v1/products/invoice \
   -H "Authorization: Basic YWRtaW46YWRtaW4xMjM=" \
   --output invoice.pdf
 ```
