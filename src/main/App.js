@@ -12,6 +12,7 @@ function App() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getAuthHeader = () => "Basic " + btoa(`${user.username}:${user.password}`);
 
@@ -24,7 +25,8 @@ function App() {
     if (!user) return;
     
     const url = searchTerm ? `${API_URL}/search?name=${searchTerm}` : API_URL;
-    
+
+    setLoading(true);
     fetch(url, {
       headers: { Authorization: getAuthHeader() },
     })
@@ -40,7 +42,8 @@ function App() {
       .catch((err) => {
         setError(err.message);
         if (err.message === "Неверный логин или пароль") setUser(null);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -225,7 +228,13 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {products.length === 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
+                ⏳ Lade Produkte...
+              </td>
+            </tr>
+          ) : products.length === 0 ? (
             <tr>
               <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
                 Keine Produkte gefunden
