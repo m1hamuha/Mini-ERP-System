@@ -105,14 +105,20 @@ function App() {
     fetch(`${API_URL}/invoice`, {
       headers: { Authorization: getAuthHeader() },
     })
-      .then((res) => res.blob())
+      .then((res) => {
+        if (!res.ok) throw new Error("Ошибка при создании PDF");
+        return res.blob();
+      })
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
         a.download = "Lieferschein_Altenburg.pdf";
         a.click();
-      });
+        window.URL.revokeObjectURL(url);
+        setError("");
+      })
+      .catch(() => setError("Ошибка при создании PDF"));
   };
 
   if (!user) {
