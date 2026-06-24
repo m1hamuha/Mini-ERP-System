@@ -24,7 +24,7 @@ function App() {
   const fetchProducts = () => {
     if (!user) return;
     
-    const url = searchTerm ? `${API_URL}/search?name=${searchTerm}` : API_URL;
+    const url = searchTerm ? `${API_URL}/search?name=${encodeURIComponent(searchTerm)}` : API_URL;
 
     setLoading(true);
     fetch(url, {
