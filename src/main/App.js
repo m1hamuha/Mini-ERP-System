@@ -125,7 +125,7 @@ function App() {
     return (
       <div className="login-container" style={{ padding: "20px", maxWidth: "400px", margin: "50px auto" }}>
         <h2>🔐 System Login (Mini ERP)</h2>
-        {error && <p style={{ color: "red", background: "#ffe6e6", padding: "10px" }}>{error}</p>}
+        {error && <p role="alert" style={{ color: "red", background: "#ffe6e6", padding: "10px" }}>{error}</p>}
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
           <input
             type="text"
@@ -162,7 +162,7 @@ function App() {
         </button>
       </header>
 
-      {error && <div style={{ color: "red", background: "#ffe6e6", padding: "10px", marginBottom: "20px" }}>{error}</div>}
+      {error && <div role="alert" style={{ color: "red", background: "#ffe6e6", padding: "10px", marginBottom: "20px" }}>{error}</div>}
 
       <div style={{ marginBottom: "20px" }}>
         <input
