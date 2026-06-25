@@ -127,18 +127,20 @@ function App() {
         <h2>🔐 System Login (Mini ERP)</h2>
         {error && <p style={{ color: "red", background: "#ffe6e6", padding: "10px" }}>{error}</p>}
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          <input 
-            type="text" 
-            placeholder="Username (admin)" 
-            value={username} 
+          <input
+            type="text"
+            placeholder="Username (admin)"
+            aria-label="Username"
+            value={username}
             onChange={e => setUsername(e.target.value)}
             style={{ padding: "10px", fontSize: "16px" }}
             required
           />
-          <input 
-            type="password" 
-            placeholder="Password (admin123)" 
-            value={password} 
+          <input
+            type="password"
+            placeholder="Password (admin123)"
+            aria-label="Password"
+            value={password}
             onChange={e => setPassword(e.target.value)}
             style={{ padding: "10px", fontSize: "16px" }}
             required
@@ -166,6 +168,7 @@ function App() {
         <input
           type="text"
           placeholder="🔍 Поиск продуктов..."
+          aria-label="Поиск продуктов"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ padding: "10px", width: "100%", fontSize: "16px" }}
@@ -177,6 +180,7 @@ function App() {
         <form onSubmit={editingProduct ? handleUpdate : handleAdd} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <input
             placeholder="Produktname"
+            aria-label="Produktname"
             value={editingProduct ? editingProduct.name : newProduct.name}
             onChange={(e) => editingProduct 
               ? setEditingProduct({ ...editingProduct, name: e.target.value })
@@ -187,6 +191,7 @@ function App() {
           <input
             type="number"
             placeholder="Menge"
+            aria-label="Menge"
             value={editingProduct ? editingProduct.quantity : newProduct.quantity}
             onChange={(e) => editingProduct 
               ? setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })
@@ -199,6 +204,7 @@ function App() {
             type="number"
             step="0.01"
             placeholder="Preis"
+            aria-label="Preis"
             value={editingProduct ? editingProduct.price : newProduct.price}
             onChange={(e) => editingProduct 
               ? setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })
