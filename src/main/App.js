@@ -228,6 +228,7 @@ function App() {
         📄 PDF Lieferschein herunterladen
       </button>
 
+      <div role="region" aria-label="Warenbestand-Tabelle" tabIndex={0} style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
       <table border="1" cellPadding="12" style={{ width: "100%", borderCollapse: "collapse" }}>
         <caption style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
           Warenbestand: Produkte mit Menge, Preis und Gesamtwert
@@ -282,6 +283,7 @@ function App() {
           )}
         </tbody>
       </table>
+      </div>
 
       {products.length > 0 && (
         <div style={{ marginTop: "20px", textAlign: "right", fontSize: "18px", fontWeight: "bold" }}>
