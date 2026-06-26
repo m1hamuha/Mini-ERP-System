@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 const API_URL = "http://localhost:8080/api/v1/products";
@@ -13,6 +13,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const isFirstFetch = useRef(true);
 
   const getAuthHeader = () => "Basic " + btoa(`${user.username}:${user.password}`);
 
@@ -47,7 +48,21 @@ function App() {
   };
 
   useEffect(() => {
-    if (user) fetchProducts();
+    if (!user) {
+      isFirstFetch.current = true;
+      return;
+    }
+    // Load instantly right after login, but debounce subsequent search typing:
+    // collapse rapid keystrokes into one request so the backend is not hit on
+    // every character and the list cannot flicker through stale, out-of-order
+    // responses.
+    if (isFirstFetch.current) {
+      isFirstFetch.current = false;
+      fetchProducts();
+      return;
+    }
+    const timer = setTimeout(fetchProducts, 300);
+    return () => clearTimeout(timer);
   }, [user, searchTerm]);
 
   const handleAdd = (e) => {
