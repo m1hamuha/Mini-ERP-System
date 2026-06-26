@@ -98,7 +98,13 @@ function App() {
     fetch(`${API_URL}/${id}`, {
       method: "DELETE",
       headers: { Authorization: getAuthHeader() },
-    }).then(() => fetchProducts());
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Ошибка при удалении");
+        fetchProducts();
+        setError("");
+      })
+      .catch(() => setError("Ошибка при удалении"));
   };
 
   const downloadPdf = () => {
