@@ -143,6 +143,7 @@ function App() {
             type="text"
             placeholder="Username (admin)"
             aria-label="Username"
+            autoComplete="username"
             value={username}
             onChange={e => setUsername(e.target.value)}
             style={{ padding: "10px", fontSize: "16px" }}
@@ -152,6 +153,7 @@ function App() {
             type="password"
             placeholder="Password (admin123)"
             aria-label="Password"
+            autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             style={{ padding: "10px", fontSize: "16px" }}
