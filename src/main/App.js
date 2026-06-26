@@ -84,12 +84,18 @@ function App() {
       },
       body: JSON.stringify(editingProduct),
     })
+      .then(res => {
+        if (!res.ok) return res.json().then(err => { throw err; });
+        return res.json();
+      })
       .then(() => {
         fetchProducts();
         setEditingProduct(null);
         setError("");
       })
-      .catch(err => setError("Ошибка при обновлении"));
+      .catch(err => {
+        setError(err.errors ? Object.values(err.errors).join(", ") : "Ошибка при обновлении");
+      });
   };
 
   const handleDelete = (id) => {
