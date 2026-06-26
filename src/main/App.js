@@ -266,7 +266,7 @@ function App() {
             </tr>
           ) : products.length === 0 ? (
             <tr>
-              <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
+              <td colSpan="6" role="status" aria-live="polite" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
                 Keine Produkte gefunden
               </td>
             </tr>
