@@ -294,17 +294,19 @@ function App() {
                 <td>{p.price.toFixed(2)} €</td>
                 <td style={{ fontWeight: "bold" }}>{(p.price * p.quantity).toFixed(2)} €</td>
                 <td>
-                  <button 
-                    onClick={() => setEditingProduct(p)} 
+                  <button
+                    onClick={() => setEditingProduct(p)}
+                    aria-label={`Изменить: ${p.name}`}
                     style={{ background: "#2196F3", color: "white", marginRight: "5px", padding: "5px 15px" }}
                   >
-                    ✏️ Изменить
+                    <span aria-hidden="true">✏️ </span>Изменить
                   </button>
-                  <button 
-                    onClick={() => handleDelete(p.id)} 
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    aria-label={`Löschen: ${p.name}`}
                     style={{ background: "#ff9800", color: "white", padding: "5px 15px" }}
                   >
-                    🗑️ Löschen
+                    <span aria-hidden="true">🗑️ </span>Löschen
                   </button>
                 </td>
               </tr>
