@@ -275,13 +275,13 @@ function App() {
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan="6" role="status" aria-live="polite" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
+              <td colSpan="6" role="status" aria-live="polite" style={{ textAlign: "center", padding: "20px", color: "#6e6e6e" }}>
                 <span aria-hidden="true">⏳ </span>Lade Produkte...
               </td>
             </tr>
           ) : products.length === 0 ? (
             <tr>
-              <td colSpan="6" role="status" aria-live="polite" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
+              <td colSpan="6" role="status" aria-live="polite" style={{ textAlign: "center", padding: "20px", color: "#6e6e6e" }}>
                 Keine Produkte gefunden
               </td>
             </tr>
