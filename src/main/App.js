@@ -5,9 +5,13 @@ const API_URL = "http://localhost:8080/api/v1/products";
 
 // Render money/values in German locale ("1.234,56") so the displayed prices and
 // totals match this German ERP's UI; pinned to de-DE so it never depends on the
-// viewer's machine locale.
-const formatEUR = (n) =>
-  n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// viewer's machine locale. A single reusable Intl.NumberFormat is created once and
+// shared: Number.prototype.toLocaleString builds a fresh formatter on every call, so
+// the inventory table (2 formats per row + the grand total) rebuilt one formatter per
+// value on every re-render — i.e. on every keystroke. Reusing one instance gives
+// byte-identical output with no per-render formatter construction.
+const eurFormatter = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatEUR = (n) => eurFormatter.format(n);
 
 function App() {
   const [user, setUser] = useState(null);
