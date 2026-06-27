@@ -195,7 +195,7 @@ function App() {
 
       <div style={{ marginBottom: "20px" }}>
         <input
-          type="text"
+          type="search"
           placeholder="🔍 Поиск продуктов..."
           aria-label="Поиск продуктов"
           value={searchTerm}
