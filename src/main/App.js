@@ -3,6 +3,12 @@ import "./App.css";
 
 const API_URL = "http://localhost:8080/api/v1/products";
 
+// Render money/values in German locale ("1.234,56") so the displayed prices and
+// totals match this German ERP's UI; pinned to de-DE so it never depends on the
+// viewer's machine locale.
+const formatEUR = (n) =>
+  n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 function App() {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
@@ -291,8 +297,8 @@ function App() {
                 <td>{p.id}</td>
                 <td>{p.name}</td>
                 <td>{p.quantity}</td>
-                <td>{p.price.toFixed(2)} €</td>
-                <td style={{ fontWeight: "bold" }}>{(p.price * p.quantity).toFixed(2)} €</td>
+                <td>{formatEUR(p.price)} €</td>
+                <td style={{ fontWeight: "bold" }}>{formatEUR(p.price * p.quantity)} €</td>
                 <td>
                   <button
                     onClick={() => setEditingProduct(p)}
@@ -318,7 +324,7 @@ function App() {
 
       {products.length > 0 && (
         <div style={{ marginTop: "20px", textAlign: "right", fontSize: "18px", fontWeight: "bold" }}>
-          GESAMTBESTAND WERT: {products.reduce((sum, p) => sum + (p.price * p.quantity), 0).toFixed(2)} €
+          GESAMTBESTAND WERT: {formatEUR(products.reduce((sum, p) => sum + (p.price * p.quantity), 0))} €
         </div>
       )}
     </div>
